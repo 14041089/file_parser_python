@@ -1,14 +1,3 @@
-*FLICA
-CODE: 'FLICA' ;
-OPTION: 'ECHO' 0 ;
-OPTION: 'STAT' 'OUI' ;
-F4VERSION = VERSION_CODE_FLICA4 ;
-WRITE: 6 F4VERSION ' ' ;
-TITRE = 'fichier eau.10-210'   ;
-FIC_NAM = 'Eau.10-210bar:200kJ' ;
-FIC_NAM_XDR = 'Eau.10-210bar:200kJ.xdr' ;
-
-
 *            ========
 			 BLOC EAU   ;
 *            ========
