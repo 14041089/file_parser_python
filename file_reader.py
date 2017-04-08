@@ -179,6 +179,10 @@ def parseSingleMatrix(matrixStringList, outputFileName):
     print(finalMatrixWithPairs)
     return
 
+def generateOutputFilenameWithIndex(baseOutputFilename, index):
+    return "{0}_{2}.{1}".format(*baseOutputFilename.rsplit('.',
+                                                            1) + [index])
+
 if __name__ == "__main__":
     # Run you code from here.
     # Define a filename in the following:
@@ -193,6 +197,7 @@ if __name__ == "__main__":
 
     for index, matrixSet in enumerate(textWithMatrixes):
         print(matrixSet)
-        parseSingleMatrix(matrixSet, "output-" + str(index) + ".txt")
+        parseSingleMatrix(matrixSet, generateOutputFilenameWithIndex(
+            outputFileName, index))
 
     print ("Success!")
