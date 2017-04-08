@@ -38,6 +38,32 @@ FONCTION_SAR   TSP   22
 	0.1E2	0.2E2	0.3E2
 
 MAILLAGE_P  85
+
+
+FONCTIONS_FLUIDE
+
+*__________________________________________________________
+*_____________________etats a saturation___________________
+
+FONCTION_BOI   TSP   22
+
+*scale___0___________0___________0___________0___________0___________012
+5E5	15.E5	25.E5	35.E5	45.E5	55.E5	65.E5
+75.E5	85.E5	95.E5	105.E5	115.E5	125.E5	135.E5
+145.E5	155.E5	165.E5	175.E5	185.E5	195.E5	205.E5
+215.E5
+
+	1.1E2	1.2E2	1.3E2
+	1.1E2	1.2E2	1.3E2
+	1.1E2	1       1
+	1.1E2	1.2E2	1.3E2
+	1.1E2	1       1
+	1.1E2	1.2E2	1.3E2
+	1.1E2	1.2E2	1
+	1.1E2	1.2E2	1.3E2
+	1.1E2	1.2E2	1.3E2
+
+MAILLAGE_P  85
 """
 
 def extractMatrixFromFile(filename) :
@@ -55,14 +81,15 @@ def extractMatrixFromFile(filename) :
             if (hasScaleAppeared):
                 matrixLines.append(line)
 
-            #if (line.startswith(maillageP)):
-                #hasScaleAppeared = False
-                #numberOfOutputs += 1
-                #fileMatrixes.append(matrixLines)
-                #matrixLines.clear()
+            if (line.startswith(maillageP)):
+                hasScaleAppeared = False
+                numberOfOutputs += 1
+                fileMatrixes.append(matrixLines[1:])
+                print("New Matrix --------------" + str(len(fileMatrixes)))
+                print(matrixLines)
+                matrixLines = []
 
-
-    return matrixLines
+    return fileMatrixes
 
 def separateMatrixes(listOfLines):
     firstMatrix = []
@@ -70,7 +97,6 @@ def separateMatrixes(listOfLines):
 
     firstMatrixLines = getNumberOfValuesInMatrixText(listOfLines)
     firstMatrix = listOfLines[0:firstMatrixLines]
-    print(str(firstMatrixLines))
 
     secondMatrixLines = getNumberOfValuesInMatrixText(listOfLines[
                                                       firstMatrixLines+1:])
@@ -121,7 +147,7 @@ def getNumberOfValuesInMatrixText(listOfLines):
 def inputDataIntoFile(listOfData, outputFileName):
     with open(outputFileName, "w") as outputFile:
         for lineOfData in listOfData:
-            outputFile.write(lineOfData)
+            outputFile.write(lineOfData + "\n")
 
 
 def interateThroughFileList(listOfFilenames):
@@ -132,7 +158,7 @@ def interateThroughFileList(listOfFilenames):
     return listOfDataStrings
 
 def parseSingleMatrix(matrixStringList, outputFileName):
-    firstMatrix, secondMatrix = separateMatrixes(textWithMatrixes)
+    firstMatrix, secondMatrix = separateMatrixes(matrixStringList)
     print ("Separated Both Matrixes!")
     print ("Number of lines (A,B): " + str(len(firstMatrix)) + "," + str(len(
         secondMatrix)))
@@ -156,31 +182,17 @@ def parseSingleMatrix(matrixStringList, outputFileName):
 if __name__ == "__main__":
     # Run you code from here.
     # Define a filename in the following:
-    inputFileName = ""
-    outputFileName = ""
+    inputFileName = "test.txt"
+    outputFileName = "output.txt"
 
     textWithMatrixes = extractMatrixFromFile(inputFileName)
     #textWithMatrixes = textFromFile.split("\n")
     print ("Opened and Extracted the Text!")
 
     print(textWithMatrixes)
-    firstMatrix, secondMatrix = separateMatrixes(textWithMatrixes)
-    print ("Separated Both Matrixes!")
-    print ("Number of lines (A,B): " + str(len(firstMatrix)) + "," + str(len(
-        secondMatrix)))
 
-    firstMatrixValueList = getStringValuesFromMatrix(firstMatrix)
-    secondMatrixValueList = getStringValuesFromMatrix(secondMatrix)
-    print ("Got Both Lists of Values!")
-    print ("Number of Values (A,B): " + str(len(firstMatrixValueList)) + ","
-           + str(len(secondMatrixValueList)))
+    for index, matrixSet in enumerate(textWithMatrixes):
+        print(matrixSet)
+        parseSingleMatrix(matrixSet, "output-" + str(index) + ".txt")
 
-    finalMatrixWithPairs = pairLinesBySeparator(firstMatrixValueList,
-                                                secondMatrixValueList,
-                                                delimiter=",")
-    print ("Got Final Matrix!")
-    print ("Total Number of Lines: " + str(len(finalMatrixWithPairs)))
-
-    inputDataIntoFile(finalMatrixWithPairs, outputFileName)
-    #print(finalMatrixWithPairs)
     print ("Success!")
