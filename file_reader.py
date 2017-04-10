@@ -1,3 +1,4 @@
+
 def extractMatrixFromFile(filename) :
     scaleInitialPattern = "*scale"
     maillageP = "MAILLAGE_P"
@@ -13,7 +14,7 @@ def extractMatrixFromFile(filename) :
             if (hasScaleAppeared):
                 matrixLines.append(line)
 
-            if (line.startswith(maillageP)):
+            if (line.strip().startswith(maillageP)):
                 hasScaleAppeared = False
                 numberOfOutputs += 1
                 fileMatrixes.append(matrixLines[1:])
@@ -118,7 +119,7 @@ def generateOutputFilenameWithIndex(baseOutputFilename, index):
 if __name__ == "__main__":
     # Run you code from here.
     # Define a filename in the following:
-    inputFileName = "test.txt"
+    inputFileName = "tab.txt"
     outputFileName = "output.txt"
 
     textWithMatrixes = extractMatrixFromFile(inputFileName)
