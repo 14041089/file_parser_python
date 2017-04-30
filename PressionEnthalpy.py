@@ -104,7 +104,12 @@ class PressionEnthalpy:
             if line.startswith(self._ENTHALPY_STRING):
                 hasEnthalpyAppeared = True
 
+    def _getIndividualValuesFromString(self, listOfValues):
+        resultingList = []
+        for el in listOfValues:
+            resultingList += el.split()
 
+        return resultingList
 
     def _cleanUpListValues(self):
         cleanedPressionLines = []
@@ -114,6 +119,7 @@ class PressionEnthalpy:
                 cleanedPressionLines.append(pressionLine)
 
         self.pressionValues = cleanedPressionLines
+        self.pressionValues = self._getIndividualValuesFromString(self.pressionValues)
 
         cleanedEnthalpyLines = []
         for enthalpyLine in self.enthalpyValues:
@@ -122,6 +128,7 @@ class PressionEnthalpy:
                 cleanedEnthalpyLines.append(enthalpyLine)
 
         self.enthalpyValues = cleanedEnthalpyLines
+        self.enthalpyValues = self._getIndividualValuesFromString(self.enthalpyValues)
 
         cleanedCoefficientLines = []
         for coefficientLine in self.coefficientValues:
@@ -130,6 +137,7 @@ class PressionEnthalpy:
                 cleanedCoefficientLines.append(coefficientLine)
 
         self.coefficientValues = cleanedCoefficientLines
+        #self.coefficientValues = self._getIndividualValuesFromString(self.coefficientValues)
 
     def exportPressionAndEnthalpyColumns(self):
         exportedString = " ".join(self.pressionValues) \
