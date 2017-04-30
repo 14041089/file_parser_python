@@ -4,7 +4,7 @@ class PressureEnthalpyMatrix:
 
     coefficientStartingString = "* "
 
-    def __init__(self, pressureLines, enthalpyLines, coefficientsLines):
+    def __init__(self, pressureLines, enthalpyLines, coefficientLines):
         self.pressureLines = pressureLines
         self.enthalpyLines = enthalpyLines
         self.coefficientLines = coefficientLines
@@ -12,7 +12,7 @@ class PressureEnthalpyMatrix:
         self.pressureValueList = self.extractPressureValues(pressureLines)
         self.enthalpyValueList = self.extractEnthalpyValues(enthalpyLines)
         self.coefficienValuesDic = self.extractCoefficients(
-                self.enthalpyValueList, coefficientsLines)
+                self.enthalpyValueList, coefficientLines)
         return
 
     def extractPressureValues(self, pressureLines):
@@ -27,7 +27,7 @@ class PressureEnthalpyMatrix:
         return pressureList
 
     def extractEnthalpyValues(self, enthalpyLines) :
-        if ( not (pressureLines == None) and len(enthalpyLines) <= 0) :
+        if ( not (self.pressureLines == None) and len(enthalpyLines) <= 0) :
             print ("The enthalpy is either empty or null!")
 
         enthalpyList = []
@@ -43,12 +43,12 @@ class PressureEnthalpyMatrix:
         coefficientDic = {}
 
         for coefficientLine in coefficientLines :
-            if coefficientLine.startswith( coefficientStartingString ) :
+            if coefficientLine.startswith( self.coefficientStartingString ) :
                 if not coefficientEnthalpyValue == "": # Saving Information
                     coefficientDic[coefficientEnthalpyValue] = compositeLine
 
-                coefficientEnthalpyValue =
-                    coefficientLine[len(coefficientStartingString):]
+                coefficientEnthalpyValue = \
+                    coefficientLine[len(self.coefficientStartingString):]
 
                 compositeLine = ""
             else :
@@ -56,7 +56,7 @@ class PressureEnthalpyMatrix:
 
         return coefficientDic
 
-    def exportDataIntoFiles(self, outputfilename, outputExtension=".csv",
+    def exportDataIntoFiles(self, outputFilename, outputExtension=".csv",
             outputDelimiter=" ") :
         outputPressureFilename = outputFilename + "-a" + outputExtension
         outputCoefficientFilename = outputFilename + "-b" + outputExtension
@@ -68,8 +68,7 @@ class PressureEnthalpyMatrix:
 
         with open(outputCoefficientFilename, "w") as coefficientsFile:
             pressureWriter.writerow(self.enthalpyValueList)
-            coefficientWriter = csv.writer(coefficientWriter,
-                    delimiter=outputDelimiter)
+            coefficientWriter = csv.writer(coefficientsFile, delimiter=outputDelimiter)
             for enthalpyValue in self.enthalpyValueList:
                 coefficientWriter.writerow(self.coefficientValueDic[enthalpyValue])
 
