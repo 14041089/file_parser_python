@@ -18,6 +18,7 @@ class PressionEnthalpy:
         # initialize all the values
         self._extractAllInfoFromStringList(listOfValues)
         self._rearrangePartialGrids()
+        self.coefficientValues = self.cleanCoefficientValueList
         self._cleanUpListValues()
         self._generateCoefficientValues()
         self.cleanCoefficients = self._generateCoefficientValues()
