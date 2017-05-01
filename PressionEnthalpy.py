@@ -15,6 +15,10 @@ class PressionEnthalpy:
         self.coefficientValues = []
         self.cleanCoefficientValueList = []
 
+        self.pressionListOfValues = []
+        self.enthalpyListOfValues = []
+        self.coefficientListOfValues = []
+
         # Check if it has partial Grids or Not.
         self.hasPartialGrids = (self._getFirstPositionFor(self.lines, self._GRILLE_PARTIELE) != -1 or \
                                 self._getFirstPositionFor(self.lines, "* ") != -1)
@@ -26,19 +30,14 @@ class PressionEnthalpy:
         self.pressionValues = self._getIndividualValuesFromListOfLines(self.pressionValues)
 
         # Extract and Trim Enthalpie Values
-        temporaryEnthalpyValues = self._getIndividualValuesFromListOfLines(self.enthalpyValues)
-        if len(temporaryEnthalpyValues) > len(self.pressionValues):
-            self.enthalpyValues = temporaryEnthalpyValues[-1 * len(self.pressionValues):]
-        else:
-            self.enthalpyValues = temporaryEnthalpyValues
+        self.enthalpyValues = self._getIndividualValuesFromListOfLines(self.enthalpyValues)
 
         # Check if there are multiple grids or not.
         if (self.hasPartialGrids):
-            #self._generateCoefficientValues() # Generate Coefficient Values
-            self.coefficientValues = self._rearrangePartialGrids(self.coefficientValues)[-1 * len(self.enthalpyValues):]
-            #self._cleanUpListValues()
-            #self._generateCoefficientValues()
-            #self.cleanCoefficients = self._generateCoefficientValues()
+            self.enthalpyListOfValues.append(self.enthalpyValues)
+            self.pressionListOfValues.append(self.pressionValues)
+            self.coefficientValues = self._rearrangePartialGrids(self.coefficientValues)
+
         else:
             # Clean up the Coefficient Values when there is no Partial Grids.
             self.coefficientValues = self._getCoefficientsOfNonPartialGridFunction(self.coefficientValues)
@@ -162,14 +161,18 @@ class PressionEnthalpy:
     def _rearrangePartialGrids(self, coefficientValues):
         partialGrids = self._getPartialGridPositions(coefficientValues)
 
-        if (len(partialGrids) == 0):
-            return self._extractCoefficientsWithEnthalpy(coefficientValues)
-
         coeffiecientsList = []
+
+        if (len(partialGrids) == 0):
+            coefficientList = self._extractCoefficientsWithEnthalpy(coefficientValues)
+            self.coefficientListOfValues.append(coefficientList)
+            return coefficientList
+
         pressionList = []
         enthalpyList = []
         temporaryEnthalpyValues = []
         temporaryPressionValues = []
+        temporaryCoefficientValues = []
 
         pressionValuePosition = 0
         enthalpyValuePosition = 0
@@ -178,13 +181,21 @@ class PressionEnthalpy:
 
         # Extract the first line
         self.cleanCoefficientValueList = self._extractCoefficientsWithEnthalpy(coefficientValues[:partialGrids[0]])
+        temporaryCoefficientValues = self.cleanCoefficientValueList
+
         self.cleanCoefficientValueList = self.cleanCoefficientValueList[-1 * len(self.pressionValues):]
+
+        # self.pressionListOfValues.append(self.pressionValues)
+        # self.enthalpyListOfValues.append(self.enthalpyListOfValues)
+        self.coefficientListOfValues.append(temporaryCoefficientValues)
+
+        temporaryCoefficientValues = []
 
         auxiliaryCompensation = 0
         # Extract Subsequent Lines
         for grilleStartingIndex in partialGrids:
-            pressionValuePosition = self._getFirstPositionFor(coefficientValues, self._PRESSION_STRING)
-            enthalpyValuePosition = self._getFirstPositionFor(coefficientValues, self._ENTHALPY_STRING)
+            pressionValuePosition = self._getFirstPositionFor(coefficientValues[grilleStartingIndex:], self._PRESSION_STRING) + grilleStartingIndex
+            enthalpyValuePosition = self._getFirstPositionFor(coefficientValues[grilleStartingIndex:], self._ENTHALPY_STRING) + grilleStartingIndex
             postEnthalpyValuePosition = self._getFirstPositionFor(coefficientValues[enthalpyValuePosition:], "* ") \
                 + enthalpyValuePosition
             endOfCoefValuesPosition = self._getFirstPositionFor(coefficientValues[postEnthalpyValuePosition:], \
@@ -196,6 +207,7 @@ class PressionEnthalpy:
 
             temporaryPressionValues = self._getIndividualValuesFromListOfLines(pressionList)
             temporaryEnthalpyValues = self._getIndividualValuesFromListOfLines(enthalpyList)
+
             if len(temporaryEnthalpyValues) > len(temporaryPressionValues):
                 auxiliaryCompensation = -1 * len(temporaryPressionValues)
                 self.enthalpyValues += temporaryEnthalpyValues[auxiliaryCompensation:]
@@ -205,7 +217,12 @@ class PressionEnthalpy:
 
             self.pressionValues += temporaryPressionValues
 
-            self.cleanCoefficientValueList += self._extractCoefficientsWithEnthalpy(coeffiecientsList)[auxiliaryCompensation:]
+            temporaryCoefficientValues = self._extractCoefficientsWithEnthalpy(coeffiecientsList)
+            self.cleanCoefficientValueList += temporaryCoefficientValues[auxiliaryCompensation:]
+
+            self.pressionListOfValues.append(temporaryPressionValues)
+            self.enthalpyListOfValues.append(temporaryEnthalpyValues)
+            self.coefficientListOfValues.append(temporaryCoefficientValues)
 
         return self.cleanCoefficientValueList
 
@@ -291,3 +308,16 @@ class PressionEnthalpy:
             coefficientListOfStrings.append(delimiter.join(coefficientValues))
 
         return coefficientListOfStrings
+
+    def toStringOfListTrio(self, pressionValues, enthalpyValues, coefficientValues, delimiter=" ", assumeListsOfLists=True):
+        resultingCoefficientLines = []
+        stringForPressionAndEnthalpy = delimiter.join(pressionValues) + "\n" + \
+            delimiter.join(enthalpyValues)
+
+        if (assumeListsOfLists):
+            for coefficient in coefficientValues:
+                resultingCoefficientLines.append(coefficient.exportCoefficientsAsSingleLine(delimiter))
+        else:
+            resultingCoefficientLines.append(delimiter.join(coefficientValues))
+
+        return stringForPressionAndEnthalpy, resultingCoefficientLines
