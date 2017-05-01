@@ -19,5 +19,5 @@ class EnthalpyCoefficient:
         return []
 
     def exportCoefficientsAsSingleLine(self, delimiter=" "):
-        print("Export Coefficients As Single Line: " + str(self.coefficientsList))
+        # print("Export Coefficients As Single Line: " + str(self.coefficientsList))
         return delimiter.join(self.coefficientsList)
