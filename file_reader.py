@@ -239,14 +239,19 @@ if __name__ == "__main__":
 
     pressionEnthalpyList = _convertStringLinesIntoPressionEnthalpyObjs(trioFunctionList)
     binaryFunctionCount = len(binaryFunctionList)
+
+    stringPressionEnthalpy = ""
+    coefficientList = []
     print("Saving the Presion - Enthalpy functions in files now!")
     for index, pressionEnthalpyFunction in enumerate(pressionEnthalpyList):
         roundedIndex = binaryFunctionCount + index
         pressionOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_a"), roundedIndex)
         coefficientOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_b"), roundedIndex)
 
-        savePressionEnthalpyToFile(pressionOutputname, pressionEnthalpyFunction.exportPressionAndEnthalpyColumns(), \
-                                   coefficientOutputname, pressionEnthalpyFunction.exportCoefficients())
+        print("Saving File Number: " + str(roundedIndex))
+        stringPressionEnthalpy, coefficientList = pressionEnthalpyFunction.exportDistinctValuesBasedOnPression()
+        savePressionEnthalpyToFile(pressionOutputname, stringPressionEnthalpy, coefficientOutputname, \
+                                   coefficientList)
         # pressionEnthalpyFunction.exportIntoFileLine()
 
 

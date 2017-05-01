@@ -152,12 +152,12 @@ class PressionEnthalpy:
             if line.startswith(self._ENTHALPY_STRING):
                 hasEnthalpyAppeared = True
 
-    def _getIndividualValuesFromString(self, listOfValues):
-        resultingList = []
-        for el in listOfValues:
-            resultingList += el.split()
-
-        return resultingList
+    # def _getIndividualValuesFromString(self, listOfValues):
+    #     resultingList = []
+    #     for el in listOfValues:
+    #         resultingList += el.split()
+    #
+    #     return resultingList
 
     def _rearrangePartialGrids(self, coefficientValues):
         partialGrids = self._getPartialGridPositions(coefficientValues)
@@ -205,7 +205,7 @@ class PressionEnthalpy:
 
             self.pressionValues += temporaryPressionValues
 
-            self.cleanCoefficientValueList += self._extractCoefficientsWithEnthalpy(coeffiecientsList[auxiliaryCompensation:])
+            self.cleanCoefficientValueList += self._extractCoefficientsWithEnthalpy(coeffiecientsList)[auxiliaryCompensation:]
 
         return self.cleanCoefficientValueList
 
@@ -217,38 +217,34 @@ class PressionEnthalpy:
 
         return -1
 
-    def _aggregateAndNormalizePressionAndEnthalpyValues(self):
-
-        return
-
-    def _cleanUpListValues(self):
-        cleanedPressionLines = []
-
-        for pressionLine in self.pressionValues:
-            if pressionLine.strip() != "" and self._PRESSION_STRING not in pressionLine \
-                    and self._ENTHALPY_STRING not in pressionLine:
-                cleanedPressionLines.append(pressionLine)
-
-        self.pressionValues = cleanedPressionLines
-        self.pressionValues = self._getIndividualValuesFromString(self.pressionValues)
-
-        cleanedEnthalpyLines = []
-        for enthalpyLine in self.enthalpyValues:
-            if enthalpyLine.strip() != "" and self._PRESSION_STRING not in enthalpyLine \
-                    and self._ENTHALPY_STRING not in enthalpyLine:
-                cleanedEnthalpyLines.append(enthalpyLine)
-
-        self.enthalpyValues = cleanedEnthalpyLines
-        self.enthalpyValues = self._getIndividualValuesFromString(self.enthalpyValues)
-
-        cleanedCoefficientLines = []
-        for coefficientLine in self.coefficientValues:
-            if coefficientLine.strip() != "" and self._PRESSION_STRING not in coefficientLine \
-                    and self._ENTHALPY_STRING not in coefficientLine and self._FONCTION not in coefficientLine:
-                cleanedCoefficientLines.append(coefficientLine)
-
-        self.coefficientValues = cleanedCoefficientLines
-        #self.coefficientValues = self._getIndividualValuesFromString(self.coefficientValues)
+    # def _cleanUpListValues(self):
+    #     cleanedPressionLines = []
+    #
+    #     for pressionLine in self.pressionValues:
+    #         if pressionLine.strip() != "" and self._PRESSION_STRING not in pressionLine \
+    #                 and self._ENTHALPY_STRING not in pressionLine:
+    #             cleanedPressionLines.append(pressionLine)
+    #
+    #     self.pressionValues = cleanedPressionLines
+    #     self.pressionValues = self._getIndividualValuesFromString(self.pressionValues)
+    #
+    #     cleanedEnthalpyLines = []
+    #     for enthalpyLine in self.enthalpyValues:
+    #         if enthalpyLine.strip() != "" and self._PRESSION_STRING not in enthalpyLine \
+    #                 and self._ENTHALPY_STRING not in enthalpyLine:
+    #             cleanedEnthalpyLines.append(enthalpyLine)
+    #
+    #     self.enthalpyValues = cleanedEnthalpyLines
+    #     self.enthalpyValues = self._getIndividualValuesFromString(self.enthalpyValues)
+    #
+    #     cleanedCoefficientLines = []
+    #     for coefficientLine in self.coefficientValues:
+    #         if coefficientLine.strip() != "" and self._PRESSION_STRING not in coefficientLine \
+    #                 and self._ENTHALPY_STRING not in coefficientLine and self._FONCTION not in coefficientLine:
+    #             cleanedCoefficientLines.append(coefficientLine)
+    #
+    #     self.coefficientValues = cleanedCoefficientLines
+    #     #self.coefficientValues = self._getIndividualValuesFromString(self.coefficientValues)
 
     def exportPressionAndEnthalpyColumns(self):
         exportedString = " ".join(self.pressionValues) \
@@ -261,7 +257,37 @@ class PressionEnthalpy:
         if (self.hasPartialGrids):
             for coefficientValue in self.coefficientValues:
                 coefficientListOfStrings.append(coefficientValue.exportCoefficientsAsSingleLine(delimiter))
-
-            return coefficientListOfStrings
         else:
-            return delimiter.join(self.coefficientValues)
+            coefficientListOfStrings.append(delimiter.join(self.coefficientValues))
+
+        return coefficientListOfStrings
+
+    def exportDistinctValuesBasedOnPression(self, delimiter=" "):
+        distinctPressionList = []
+        distinctEnthalpyList = []
+        distinctCoefficientList = []
+
+        if (not self.hasPartialGrids):
+            return self.exportPressionAndEnthalpyColumns(), self.exportCoefficients(delimiter)
+
+        for index, pressionValue in enumerate(self.pressionValues):
+            if not pressionValue in distinctPressionList:
+                distinctPressionList.append(pressionValue)
+                distinctEnthalpyList.append(self.enthalpyValues[index])
+                distinctCoefficientList.append(self.coefficientValues[index])
+
+        exportedPressionEnthalpyMultilineString = delimiter.join(distinctPressionList) + "\n" + \
+            delimiter.join(distinctEnthalpyList)
+        resultingCoefficientList = self.getExportReadyCoefficientList(distinctCoefficientList, delimiter)
+
+        return exportedPressionEnthalpyMultilineString, resultingCoefficientList
+
+    def getExportReadyCoefficientList(self, coefficientValues, delimiter=" "):
+        coefficientListOfStrings = []
+        if (self.hasPartialGrids):
+            for coefficientValue in coefficientValues:
+                coefficientListOfStrings.append(coefficientValue.exportCoefficientsAsSingleLine(delimiter))
+        else:
+            coefficientListOfStrings.append(delimiter.join(coefficientValues))
+
+        return coefficientListOfStrings
