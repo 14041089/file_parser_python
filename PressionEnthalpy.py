@@ -309,15 +309,23 @@ class PressionEnthalpy:
 
         return coefficientListOfStrings
 
-    def toStringOfListTrio(self, pressionValues, enthalpyValues, coefficientValues, delimiter=" ", assumeListsOfLists=True):
+    def toStringOfListTrio(self, pressionList, enthalpyList, coefficientList, delimiter=" ", assumeListsOfLists=True):
         resultingCoefficientLines = []
-        stringForPressionAndEnthalpy = delimiter.join(pressionValues) + "\n" + \
-            delimiter.join(enthalpyValues)
+        stringForPressionAndEnthalpy = delimiter.join(pressionList) + "\n" + \
+            delimiter.join(enthalpyList)
 
         if (assumeListsOfLists):
-            for coefficient in coefficientValues:
+            for coefficient in coefficientList:
                 resultingCoefficientLines.append(coefficient.exportCoefficientsAsSingleLine(delimiter))
         else:
-            resultingCoefficientLines.append(delimiter.join(coefficientValues))
+            resultingCoefficientLines.append(delimiter.join(coefficientList))
 
         return stringForPressionAndEnthalpy, resultingCoefficientLines
+
+    def getEnthalpyValuesFromCoefficientList(self, coefficientList):
+        resultingEnthalpyValues = []
+
+        for coefficientObj in coefficientList:
+            resultingEnthalpyValues.append(coefficientObj.enthalpyValue)
+
+        return resultingEnthalpyValues

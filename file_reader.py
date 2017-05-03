@@ -1,5 +1,6 @@
 from EnthalpyCoefficient import EnthalpyCoefficient
 from PressionEnthalpy import PressionEnthalpy
+from fonction import Fonction
 
 pressionString = "*__Pression"
 enthalpyString = "*__Enthalpie"
@@ -216,79 +217,80 @@ if __name__ == "__main__":
     outputFileName = "output.txt"
     outputFileNameWithVars = "output{0}.txt"
 
-    textWithMatrixes = extractMatrixFromFile(inputFileName)
-    print ("Opened and Extracted the Text!")
+    # textWithMatrixes = extractMatrixFromFile(inputFileName)
+    # print ("Opened and Extracted the Text!")
+    #
+    # binaryFunctionList = []
+    # trioFunctionList = []
+    #
+    # for function in textWithMatrixes:
+    #     if len(function) > 0 and function[0].startswith(pressionString):
+    #         trioFunctionList.append(function)
+    #     else:
+    #         binaryFunctionList.append(function)
+    # #textWithMatrixes = textFromFile.split("\n")
+    # # Separated the binary functions from the pack.
+    # # print(textWithMatrixes)
+    #
+    # print("Saving the binary functions in files!")
+    # for index, matrixSet in enumerate(binaryFunctionList):
+    #     print(matrixSet)
+    #     parseSingleMatrix(matrixSet, generateOutputFilenameWithIndex(
+    #         outputFileName, index))
+    #
+    # pressionEnthalpyList = _convertStringLinesIntoPressionEnthalpyObjs(trioFunctionList)
+    # binaryFunctionCount = len(binaryFunctionList)
+    #
+    # stringPressionEnthalpy = ""
+    # coefficientList = []
+    # print("Saving the Presion - Enthalpy functions in files now!")
+    # for index, pressionEnthalpyFunction in enumerate(pressionEnthalpyList):
+    #     roundedIndex = binaryFunctionCount + index
+    #
+    #     print("Saving File Number: " + str(roundedIndex))
+    #     if not pressionEnthalpyFunction.hasPartialGrids or len(pressionEnthalpyFunction.pressionListOfValues) == 1:
+    #         pressionOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_a"), \
+    #                                                              roundedIndex)
+    #         coefficientOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_b"), \
+    #                                                                 roundedIndex)
+    #
+    #         stringPressionEnthalpy, coefficientList = \
+    #         pressionEnthalpyFunction.toStringOfListTrio(pressionEnthalpyFunction.pressionValues, \
+    #                                                     pressionEnthalpyFunction.enthalpyValues, \
+    #                                                     pressionEnthalpyFunction.coefficientValues, \
+    #                                                     assumeListsOfLists=pressionEnthalpyFunction.hasPartialGrids)
+    #         savePressionEnthalpyToFile(pressionOutputname, stringPressionEnthalpy, coefficientOutputname, \
+    #                                coefficientList)
+    #
+    #     else:
+    #         enthalpyValuesFromCoefficients = []
+    #         # stringPressionEnthalpy, coefficientList = pressionEnthalpyFunction.exportDistinctValuesBasedOnPression()
+    #         for index in range(len(pressionEnthalpyFunction.pressionListOfValues)):
+    #             pressionOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_a" + str(index)), \
+    #                                                                  roundedIndex)
+    #             coefficientOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_b" + str(index)), \
+    #                                                                     roundedIndex)
+    #
+    #             enthalpyValuesFromCoefficients = pressionEnthalpyFunction.getEnthalpyValuesFromCoefficientList(pressionEnthalpyFunction.coefficientListOfValues[index])
+    #             stringPressionEnthalpy, coefficientList = \
+    #                 pressionEnthalpyFunction.toStringOfListTrio(pressionEnthalpyFunction.pressionListOfValues[index], \
+    #                                                             enthalpyValuesFromCoefficients, \
+    #                                                             pressionEnthalpyFunction.coefficientListOfValues[index])
+    #             savePressionEnthalpyToFile(pressionOutputname, stringPressionEnthalpy, coefficientOutputname, \
+    #                                    coefficientList)
 
-    binaryFunctionList = []
-    trioFunctionList = []
+    partialSingleGrille = "partial_single_grille_rlph.txt" # PASSED
+    partialNoCoeffGrille = "partial_no_coef_slph.txt" # PASSED
+    partialInput = "partial_input_ctlph.txt"
 
-    for function in textWithMatrixes:
-        if len(function) > 0 and function[0].startswith(pressionString):
-            trioFunctionList.append(function)
-        else:
-            binaryFunctionList.append(function)
-    #textWithMatrixes = textFromFile.split("\n")
-    # Separated the binary functions from the pack.
-    # print(textWithMatrixes)
+    testingFile = partialNoCoeffGrille
 
-    print("Saving the binary functions in files!")
-    for index, matrixSet in enumerate(binaryFunctionList):
-        print(matrixSet)
-        parseSingleMatrix(matrixSet, generateOutputFilenameWithIndex(
-            outputFileName, index))
+    fileLines = []
+    with open(testingFile, "r") as fileHandler:
+        for line in fileHandler:
+            fileLines.append(line)
 
-    pressionEnthalpyList = _convertStringLinesIntoPressionEnthalpyObjs(trioFunctionList)
-    binaryFunctionCount = len(binaryFunctionList)
-
-    stringPressionEnthalpy = ""
-    coefficientList = []
-    print("Saving the Presion - Enthalpy functions in files now!")
-    for index, pressionEnthalpyFunction in enumerate(pressionEnthalpyList):
-        roundedIndex = binaryFunctionCount + index
-
-        print("Saving File Number: " + str(roundedIndex))
-        if not pressionEnthalpyFunction.hasPartialGrids:
-            pressionOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_a"), \
-                                                                 roundedIndex)
-            coefficientOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_b"), \
-                                                                    roundedIndex)
-
-            stringPressionEnthalpy, coefficientList = \
-            pressionEnthalpyFunction.toStringOfListTrio(pressionEnthalpyFunction.pressionValues, \
-                                                        pressionEnthalpyFunction.enthalpyValues, \
-                                                        pressionEnthalpyFunction.coefficientValues, \
-                                                        assumeListsOfLists=False)
-            savePressionEnthalpyToFile(pressionOutputname, stringPressionEnthalpy, coefficientOutputname, \
-                                   coefficientList)
-
-        else:
-            if len(pressionEnthalpyFunction.pressionListOfValues) == 1:
-                pressionOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_a"), \
-                                                                     roundedIndex)
-                coefficientOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_b"), \
-                                                                        roundedIndex)
-
-                stringPressionEnthalpy, coefficientList = \
-                    pressionEnthalpyFunction.toStringOfListTrio(pressionEnthalpyFunction.pressionValues, \
-                                                                pressionEnthalpyFunction.enthalpyValues, \
-                                                                pressionEnthalpyFunction.coefficientValues)
-                savePressionEnthalpyToFile(pressionOutputname, stringPressionEnthalpy, coefficientOutputname, \
-                                           coefficientList)
-            else:
-                # stringPressionEnthalpy, coefficientList = pressionEnthalpyFunction.exportDistinctValuesBasedOnPression()
-                for index in range(len(pressionEnthalpyFunction.pressionListOfValues)):
-                    pressionOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_a" + str(index)), \
-                                                                         roundedIndex)
-                    coefficientOutputname = generateOutputFilenameWithIndex(outputFileNameWithVars.format("_b" + str(index)), \
-                                                                            roundedIndex)
-
-                    stringPressionEnthalpy, coefficientList = \
-                        pressionEnthalpyFunction.toStringOfListTrio(pressionEnthalpyFunction.pressionListOfValues[index], \
-                                                                    pressionEnthalpyFunction.enthalpyListOfValues[index], \
-                                                                    pressionEnthalpyFunction.coefficientListOfValues[index])
-                    savePressionEnthalpyToFile(pressionOutputname, stringPressionEnthalpy, coefficientOutputname, \
-                                           coefficientList)
-        # pressionEnthalpyFunction.exportIntoFileLine()
+    functionObj = Fonction(fileLines, "output_name", 18)
 
 
 
