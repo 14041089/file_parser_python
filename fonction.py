@@ -8,6 +8,7 @@ class Fonction:
     _ENTHALPIE = "*__Enthalpie"
     _SCALE = "*scale_"
     _ENTHALPY_COEFFICIENT = "* "
+    _FIN_CFETAT = "FIN_CFETAT"
 
     def __init__(self, functionLines, outputFileName, functionNumber):
         self.FunctionNumber = functionNumber
@@ -19,12 +20,22 @@ class Fonction:
         self.enthalpieList = []
         self.coefficientList = []
 
+        functionLines = self._removeFinCFETATStringFromList(functionLines)
+
         if (self.HasMultipleGrids):
             self.HasCoefficients = True # Mark that the object has coefficients for enthalpie values
             self._parseMultipleGrids(functionLines)
 
         else:
             self._parseSingleGrid(functionLines)
+
+    def _removeFinCFETATStringFromList(self, listOfStrings):
+        resultingStrings = []
+        for line in listOfStrings:
+            if not line.strip().startswith(self._FIN_CFETAT):
+                resultingStrings.append(line)
+
+        return resultingStrings
 
     def _parseMultipleGrids(self, functionLines):
         # Extract Positions for "Pression", "Enthalpie" and Coefficients
@@ -44,20 +55,19 @@ class Fonction:
 
         # TODO: for every interval between pression and enthalpy position extract Pression List of Values
         # TODO: Add Pression List of Values to the general list of values
-        for index, pressionPosition in pressionConstPositions:
+        for index, pressionPosition in enumerate(pressionConstPositions):
             # TODO: Get pression values between *__Pression and *__Enthalpie
             # FIXME: Add a function to extract the individual values:
-            functionLines[pressionPosition: enthalpieConstPositions[index]]
+            self.pressionList.append(\
+                self._getPressionFromLines(functionLines[pressionPosition: enthalpieConstPositions[index]]))
 
-        # TODO: for every interval between enthalpy and coefficient position extract Enthalpie List of Values
-        # TODO: Add Enthalpie List of Values to the general list of values
-        for index, enthalpiePosition in enthalpieConstPositions:
-            functionLines[enthalpiePosition:coefficientPositions[index][0]] # 0 because we want the start of the coefficients
+        for index, enthalpiePosition in enumerate(enthalpieConstPositions):
+            self.enthalpieList.append(\
+                self._getPressionFromLines(functionLines[enthalpiePosition:coefficientPositions[index][0]])) # 0 because we want the start of the coefficients
 
-        # TODO: for every interval between coefficient and the next empty line extract Coefficient List of Values
-        # TODO: Add Coefficient List of Objects to the general list of values
-        for coefficientStart, coefficientEnd in coefficientPositions:
-            functionLines[coefficientStart:coefficientEnd]
+        for coefficientStart, coefficientEnd in (coefficientPositions):
+            self.coefficientList.append(
+                self._extractCoefficientsWithEnthalpy(functionLines[coefficientStart:coefficientEnd]))
 
         return
 
@@ -93,6 +103,11 @@ class Fonction:
             if coefficientStartPositions != []:
                 for index,coeffPosition in enumerate(coefficientStartPositions):
                     coefficientStartPositions[index] += enthalpiePositions[0]
+            else:
+                coefficientStartPositions = self.getPositionsOfPattern(functionLines[enthalpiePositions[0]:], "\r\n")
+                if coefficientStartPositions != []:
+                    for index, coeffPosition in enumerate(coefficientStartPositions):
+                        coefficientStartPositions[index] += enthalpiePositions[0]
 
         pressionListOfLines = functionLines[pressionPositions[0]:enthalpiePositions[0]]
         enthalpyListOfLines = functionLines[enthalpiePositions[0]:coefficientStartPositions[0]]
@@ -148,6 +163,8 @@ class Fonction:
             else:
                 coefficients.append(line)
 
+        coefficientList.append(EnthalpyCoefficient(enthalpyValue, coefficients))
+
         print("Coefficient extraction was a success, extracted " + str(len(coefficients)) + " from our lines.")
         return coefficientList
 
@@ -194,3 +211,16 @@ class Fonction:
         if listOfValues == None or len(listOfValues) == 0:
             return ""
         return delimiter.join(listOfValues)
+
+    def exportCoefficientList(self, index, delimiter=" "):
+        resultingListOfStrings = []
+
+        print("Parsing Instance: " + str(self.FunctionNumber))
+
+        if self.HasCoefficients:
+            for coefficientObj in self.coefficientList[index]:
+                resultingListOfStrings.append(coefficientObj.exportCoefficientsAsSingleLine(delimiter))
+        else:
+            resultingListOfStrings.append(delimiter.join(self.coefficientList[0]))
+
+        return resultingListOfStrings
